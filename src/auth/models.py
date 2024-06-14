@@ -21,6 +21,3 @@ class User(SQLModel, table=True):
     password_hash: str = Field(exclude=True)
     is_instructor: bool = Field(default=False)
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
-
-    def __repr__(self) -> str:
-        return f"<User {self.username}>"
