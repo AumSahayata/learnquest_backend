@@ -64,24 +64,24 @@ class UserOperations:
             return False
         return user
     
-    async def get_current_user(self, token: Annotated[str, Depends(oauth2_scheme)], session: AsyncSession):
+    # async def get_current_user(self, token: Annotated[str, Depends(oauth2_scheme)], session: AsyncSession):
     
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    #     credentials_exception = HTTPException(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         detail="Could not validate credentials",
+    #         headers={"WWW-Authenticate": "Bearer"},
+    #     )
         
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms = [ALGORITHM])
-            uid = payload.get('sub')
-            is_instructor = payload.get('is_instructor')
-            if(uid is None):
-                raise credentials_exception
-            token_data = TokenData(uid = uid, is_instructor = is_instructor)
-        except InvalidTokenError:
-            raise credentials_exception
-        user = await self.get_user_by_uid(token_data.uid, session)
-        if user is None:
-            raise credentials_exception
-        return user
+    #     try:
+    #         payload = jwt.decode(token, SECRET_KEY, algorithms = [ALGORITHM])
+    #         uid = payload.get('sub')
+    #         is_instructor = payload.get('is_instructor')
+    #         if(uid is None):
+    #             raise credentials_exception
+    #         token_data = TokenData(uid = uid, is_instructor = is_instructor)
+    #     except InvalidTokenError:
+    #         raise credentials_exception
+    #     user = await self.get_user_by_uid(token_data.uid, session)
+    #     if user is None:
+    #         raise credentials_exception
+    #     return user

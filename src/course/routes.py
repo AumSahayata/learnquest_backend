@@ -1,5 +1,7 @@
 from typing import List
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, Request, status, HTTPException
+
+from src.auth.utils import decode_token
 from .models import Course
 from .schemas import CourseCreateModel, CourseUpdateModel
 from src.db.main import get_session
@@ -34,7 +36,16 @@ async def create_course(course_data: CourseCreateModel, session: AsyncSession = 
     return new_course
 
 @course_router.patch("/{course_uid}", response_model=Course)
-async def update_course(course_uid: str, course_data: CourseUpdateModel, session: AsyncSession = Depends(get_session)):
+async def update_course(course_uid: str, request: Request, course_data: CourseUpdateModel, session: AsyncSession = Depends(get_session)):
+    
+    user = request.state.user  # User information from the middleware
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User information not found",
+    )
+    
     updated_course = await course_operations.update_course(course_uid, course_data, session)
     
     if updated_course is None:

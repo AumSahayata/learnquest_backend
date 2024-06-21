@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from fastapi import HTTPException, status
 from passlib.context import CryptContext
+from src.auth.schemas import TokenData
 from src.config import Config
+from jwt import PyJWTError
 import jwt
 
 SECRET_KEY = Config.SECRET_KEY
@@ -34,3 +36,23 @@ def create_access_token(data: dict, exp_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+def decode_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        uid = payload.get('sub')
+        is_instructor = payload.get('is_instructor')
+        if uid is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return TokenData(uid=uid, is_instructor=is_instructor)
+    
+    except PyJWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
