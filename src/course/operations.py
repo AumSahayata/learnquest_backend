@@ -17,12 +17,14 @@ class CourseOperations:
         result = await session.execute(statement)
         return result.scalars().all()
     
-    async def create_course(self, course_data: CourseCreateModel, session: AsyncSession):
+    async def create_course(self, creator_uid: str, course_data: CourseCreateModel, session: AsyncSession):
         course_data_dict = course_data.model_dump()
         
         new_course = Course(
             **course_data_dict
             )
+        
+        new_course.course_creator = creator_uid
         
         session.add(new_course)
         await session.commit()
@@ -34,10 +36,17 @@ class CourseOperations:
         result = await session.execute(statement)
         return result.scalar()
     
-    async def update_course(self, course_uid: str, course_data: CourseUpdateModel, session: AsyncSession):
+    async def get_all_creator_courses(self, creator_uid: str, session: AsyncSession):
+        
+        statement = select(Course).where(Course.course_creator == creator_uid)
+        result = await session.execute(statement)
+        return result.scalars().all()
+
+    
+    async def update_course(self, instructor_uid: str, course_uid: str, course_data: CourseUpdateModel, session: AsyncSession):
         course_to_update = await self.get_course(course_uid, session)
         
-        if course_to_update is not None:
+        if course_to_update is not None and str(course_to_update.course_creator) == instructor_uid:
             update_data_dict = course_data.model_dump()
             
             for k, v in update_data_dict.items():
@@ -51,10 +60,10 @@ class CourseOperations:
         else:
             return None
         
-    async def delete_course(self, course_uid: str, session: AsyncSession):
+    async def delete_course(self, instructor_uid: str, course_uid: str, session: AsyncSession):
         course_to_delete = await self.get_course(course_uid, session)
         
-        if course_to_delete is not None:
+        if course_to_delete is not None and str(course_to_delete.course_creator) == instructor_uid:
             
             await session.delete(course_to_delete)
             

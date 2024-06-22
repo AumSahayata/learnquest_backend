@@ -3,20 +3,19 @@ from fastapi.responses import JSONResponse
 from .auth.utils import decode_token
 from .auth.routes import auth_router
 from .course.routes import course_router
+from .content.routes import content_router
 
 app = FastAPI(
     title="LearnQuest",
     description="An online learning platform",
 )
 
-EXCLUDED_PATHS = ["/api/auth/login", "/api/auth/signup"]
+EXCLUDED_PATHS = ["/api/auth/login", "/api/auth/signup" ,"/docs", "/openapi.json"]
 
 @app.middleware("http")
 async def check_token(request: Request, call_next):
     if request.url.path in EXCLUDED_PATHS:
         return await call_next(request)
-    
-    print(request.url.path)
 
     auth_header = request.headers.get("Authorization")
     if auth_header and auth_header.startswith("Bearer "):
@@ -36,4 +35,5 @@ async def check_token(request: Request, call_next):
     return response 
 
 app.include_router(auth_router, prefix = f"/api/auth", tags = "auth")
-app.include_router(course_router, prefix = f"/api/course", tags= "courses")
+app.include_router(course_router, prefix = f"/api/course", tags = "course")
+app.include_router(content_router, prefix = f"/api/content", tags = "content")
