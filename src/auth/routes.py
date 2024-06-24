@@ -1,5 +1,5 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from src.config import Config
 from .schemas import UserCreateModel, Token, UserLoginModel
 from .operations import UserOperations
@@ -50,10 +50,10 @@ async def login_for_access_token(
     access_token = create_access_token(data = data, exp_delta=access_token_expires)
     return Token(access_token=access_token, token_type="bearer")
 
-# @auth_router.post("/me", status_code=status.HTTP_200_OK)
-# async def check_me(
-#     token: Token,
-#     session: AsyncSession = Depends(get_session)
-# ) -> User:
-#     user = await user_operations.get_current_user(token.access_token, session)
-#     return user
+@auth_router.get("/user", response_model = User)
+async def get_user_data(request: Request, session: AsyncSession = Depends(get_session)):
+    user = request.state.user
+    uid = user.uid
+    user_data = await user_operations.get_user_by_uid(uid, session)
+    
+    return user_data

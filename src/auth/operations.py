@@ -1,14 +1,10 @@
-from typing import Annotated
-from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from .models import User
-from .schemas import TokenData, UserCreateModel, Token
+from .schemas import UserCreateModel
 from .utils import generate_password_hash, verify_password
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 from src.config import Config
-from jwt.exceptions import InvalidTokenError
-import jwt
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -16,7 +12,7 @@ SECRET_KEY = Config.SECRET_KEY
 ALGORITHM = Config.ALGORITHM
 
 class UserOperations:
-
+    
     async def get_user_by_email(self, email: str, session: AsyncSession):
         statement = select(User).where(User.email == email)
         
@@ -50,7 +46,7 @@ class UserOperations:
         statement = select(User).where(User.uid == uid)
         
         result = await session.execute(statement)
-        user = result.scalars().first()
+        user = result.scalar()
         if user is None:
             return None
         return user
