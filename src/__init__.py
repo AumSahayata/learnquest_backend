@@ -10,7 +10,7 @@ app = FastAPI(
     description="An online learning platform",
 )
 
-EXCLUDED_PATHS = ["/api/auth/login", "/api/auth/signup", "/"]
+EXCLUDED_PATHS = ["/api/auth/login", "/api/auth/signup"]
 
 @app.middleware("http")
 async def check_token(request: Request, call_next):

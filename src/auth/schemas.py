@@ -6,6 +6,7 @@ class UserCreateModel(BaseModel):
     last_name: str = Field(max_length=15)
     email: str
     password: str = Field(min_length=6)
+    is_instructor: bool
 
 class UserLoginModel(BaseModel):
     email: str
