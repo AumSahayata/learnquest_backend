@@ -70,7 +70,7 @@ async def update_course(course_uid: str, request: Request, course_data: CourseUp
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Only creator can update course")
 
-@course_router.delete("/{course_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@course_router.delete("/{course_uid}", status_code=status.HTTP_200_OK)
 async def delete_course(course_uid: str, request: Request, session: AsyncSession = Depends(get_session)):
     
     user = request.state.user
@@ -82,4 +82,4 @@ async def delete_course(course_uid: str, request: Request, session: AsyncSession
         if course_to_delete == -1:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
         else:
-            return {}
+            return {"detail":"Deleted successfully"}

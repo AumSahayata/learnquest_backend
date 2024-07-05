@@ -41,7 +41,7 @@ class CourseOperations:
         statement = select(Course).where(Course.course_creator == creator_uid)
         result = await session.execute(statement)
         return result.scalars().all()
-
+    
     
     async def update_course(self, instructor_uid: str, course_uid: str, course_data: CourseUpdateModel, session: AsyncSession):
         course_to_update = await self.get_course(course_uid, session)
