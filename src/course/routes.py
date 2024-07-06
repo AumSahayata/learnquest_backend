@@ -34,12 +34,18 @@ async def get_instructor_courses(request: Request, session: AsyncSession = Depen
 
 @course_router.get("/{course_uid}", response_model = Course)
 async def get_course(course_uid: str, session: AsyncSession = Depends(get_session)):
-    course = await course_operations.get_course(course_uid, session)
+    course = await course_operations.get_course_by_uid(course_uid, session)
     
     if course is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not Found")
     
     return course
+
+@course_router.get("/keywords/{keywords}", response_model=List[Course])
+async def get_keyword_courses(keywords: str, session: AsyncSession = Depends(get_session)):
+    courses = await course_operations.get_courses_with_keyword(keywords, session)
+    
+    return courses
 
 @course_router.post("/", response_model = Course, status_code = status.HTTP_201_CREATED)
 async def create_course(course_data: CourseCreateModel, request: Request, session: AsyncSession = Depends(get_session)):

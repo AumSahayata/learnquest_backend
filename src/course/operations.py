@@ -10,9 +10,9 @@ class CourseOperations:
     async def get_all_courses(self, session: AsyncSession, offset: int = 0, limit: int = 5):
         
         if offset == 0:
-            statement = select(Course).limit(limit)
+            statement = select(Course).where(Course.is_published == True).limit(limit)
         else:
-            statement = select(Course).offset(offset).limit(limit)
+            statement = select(Course).where(Course.is_published == True).offset(offset).limit(limit)
         
         result = await session.execute(statement)
         return result.scalars().all()
@@ -30,8 +30,13 @@ class CourseOperations:
         await session.commit()
         return new_course
     
-    async def get_course(self, course_uid: str, session: AsyncSession) -> Course:
+    async def get_course_by_uid(self, course_uid: str, session: AsyncSession) -> Course:
         
+        statement = select(Course).where(Course.course_uid == course_uid, Course.is_published ==True)
+        result = await session.execute(statement)
+        return result.scalar()
+    
+    async def get_course(self, course_uid: str, session: AsyncSession) -> Course:
         statement = select(Course).where(Course.course_uid == course_uid)
         result = await session.execute(statement)
         return result.scalar()
@@ -42,6 +47,10 @@ class CourseOperations:
         result = await session.execute(statement)
         return result.scalars().all()
     
+    async def get_courses_with_keyword(self, keywords: str, session: AsyncSession):
+        statement = select(Course).where(Course.course_name.ilike(f"%{keywords}%"), Course.is_published == True)
+        result = await session.execute(statement)
+        return result.scalars().all()
     
     async def update_course(self, instructor_uid: str, course_uid: str, course_data: CourseUpdateModel, session: AsyncSession):
         course_to_update = await self.get_course(course_uid, session)
