@@ -47,7 +47,7 @@ async def get_keyword_courses(keywords: str, session: AsyncSession = Depends(get
     
     return courses
 
-@course_router.post("/", response_model = Course, status_code = status.HTTP_201_CREATED)
+@course_router.post("/create/", response_model = Course, status_code = status.HTTP_201_CREATED)
 async def create_course(course_data: CourseCreateModel, request: Request, session: AsyncSession = Depends(get_session)):
     
     user = request.state.user
@@ -60,13 +60,13 @@ async def create_course(course_data: CourseCreateModel, request: Request, sessio
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Only instructors can create course")
 
-@course_router.patch("/{course_uid}", response_model=Course)
-async def update_course(course_uid: str, request: Request, course_data: CourseUpdateModel, session: AsyncSession = Depends(get_session)):
+@course_router.patch("/update/{course_uid}", response_model=Course)
+async def update_course(request: Request, course_uid: str, course_data: CourseUpdateModel, session: AsyncSession = Depends(get_session)):
     
     user = request.state.user
     
     if user.is_instructor:
-        instructor_uid = user.uid
+        instructor_uid=user.uid
         updated_course = await course_operations.update_course(instructor_uid, course_uid, course_data, session)
 
         if updated_course is None:
@@ -76,7 +76,7 @@ async def update_course(course_uid: str, request: Request, course_data: CourseUp
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Only creator can update course")
 
-@course_router.delete("/{course_uid}", status_code=status.HTTP_200_OK)
+@course_router.delete("/delete/{course_uid}", status_code=status.HTTP_200_OK)
 async def delete_course(course_uid: str, request: Request, session: AsyncSession = Depends(get_session)):
     
     user = request.state.user
