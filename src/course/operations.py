@@ -1,6 +1,9 @@
 from datetime import datetime
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from src.content.models import Content
+from src.enrollment.models import Enrollment
 from .models import Course
 from .schemas import CourseCreateModel, CourseUpdateModel
 
@@ -74,9 +77,29 @@ class CourseOperations:
         
         if course_to_delete is not None and str(course_to_delete.course_creator) == instructor_uid:
             
+            await self.delete_content_of_course(course_uid, session)
+            
+            await self.delete_enrollment_of_course(course_uid, session)
+            
             await session.delete(course_to_delete)
             
             await session.commit()
             
         else:
             return -1
+    
+    async def delete_content_of_course(self, course_uid: str, session: AsyncSession):
+        
+        statement = select(Content).where(Content.course_uid==course_uid)
+        result = await session.execute(statement)
+        
+        for content in result.scalars().all():
+            await session.delete(content)
+    
+    async def delete_enrollment_of_course(self, course_uid: str, session: AsyncSession):
+        
+        statement = select(Enrollment).where(Enrollment.course_uid==course_uid)
+        result = await session.execute(statement)
+        
+        for content in result.scalars().all():
+            await session.delete(content)

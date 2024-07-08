@@ -38,7 +38,7 @@ async def enroll_user(request: Request, course_uid: str, session: AsyncSession =
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-@enrollment_router.patch("/progress/{course_uid}/{progress}")
+@enrollment_router.patch("/progress/{course_uid}/{progress}",status_code=status.HTTP_200_OK)
 async def update_progress(request: Request, course_uid: str, progress: float, session: AsyncSession = Depends(get_session)):
     user = request.state.user
     
