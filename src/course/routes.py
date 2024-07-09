@@ -47,7 +47,7 @@ async def get_keyword_courses(keywords: str, session: AsyncSession = Depends(get
     
     return courses
 
-@course_router.post("/create/", response_model = Course, status_code = status.HTTP_201_CREATED)
+@course_router.post("/create", response_model = Course, status_code = status.HTTP_201_CREATED)
 async def create_course(course_data: CourseCreateModel, request: Request, session: AsyncSession = Depends(get_session)):
     
     user = request.state.user
