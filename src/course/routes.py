@@ -17,9 +17,12 @@ async def get_all_courses(page: int, limit: int = 5, session: AsyncSession = Dep
     
     courses = await course_operations.get_all_courses(session, offset, limit)
     
-    return courses
+    if courses:
+        return courses       
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Courses not found")
 
-@course_router.get("/instructor", response_model = List[Course])
+@course_router.get("/instructor/all", response_model = List[Course])
 async def get_instructor_courses(request: Request, session: AsyncSession = Depends(get_session)):
     
     user = request.state.user
@@ -28,7 +31,26 @@ async def get_instructor_courses(request: Request, session: AsyncSession = Depen
         creator_uid = user.uid
         courses = await course_operations.get_all_creator_courses(creator_uid, session)
         
-        return courses
+        if courses:
+            return courses
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Courses not found")
+    else:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an instructor")
+    
+@course_router.get("/instructor/{course_uid}", response_model = Course)
+async def get_instructor_courses(request: Request, course_uid: str, session: AsyncSession = Depends(get_session)):
+    
+    user = request.state.user
+
+    if user.is_instructor:
+        creator_uid = user.uid
+        course = await course_operations.get_creator_course_by_uid(course_uid, creator_uid, session)
+        
+        if course:
+            return course
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an instructor")
 
@@ -45,9 +67,12 @@ async def get_course(course_uid: str, session: AsyncSession = Depends(get_sessio
 async def get_keyword_courses(keywords: str, session: AsyncSession = Depends(get_session)):
     courses = await course_operations.get_courses_with_keyword(keywords, session)
     
-    return courses
+    if courses:
+        return courses
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
 
-@course_router.post("/create/", response_model = Course, status_code = status.HTTP_201_CREATED)
+@course_router.post("/create", response_model = Course, status_code = status.HTTP_201_CREATED)
 async def create_course(course_data: CourseCreateModel, request: Request, session: AsyncSession = Depends(get_session)):
     
     user = request.state.user

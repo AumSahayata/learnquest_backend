@@ -35,7 +35,13 @@ class CourseOperations:
     
     async def get_course_by_uid(self, course_uid: str, session: AsyncSession) -> Course:
         
-        statement = select(Course).where(Course.course_uid == course_uid, Course.is_published ==True)
+        statement = select(Course).where(Course.course_uid == course_uid, Course.is_published == True)
+        result = await session.execute(statement)
+        return result.scalar()
+    
+    async def get_creator_course_by_uid(self, course_uid: str, creator_uid: str, session: AsyncSession) -> Course:
+        
+        statement = select(Course).where(Course.course_uid == course_uid, Course.course_creator == creator_uid)
         result = await session.execute(statement)
         return result.scalar()
     
