@@ -54,7 +54,7 @@ async def get_instructor_courses(request: Request, course_uid: str, session: Asy
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an instructor")
 
-@course_router.get("/{course_uid}", response_model = Course)
+@course_router.get("/get/{course_uid}", response_model = Course)
 async def get_course(course_uid: str, session: AsyncSession = Depends(get_session)):
     course = await course_operations.get_course_by_uid(course_uid, session)
     

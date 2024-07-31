@@ -17,7 +17,7 @@ EXCLUDED_BASE_PATHS = [
     re.compile(r"^/api/auth/login"),
     re.compile(r"^/api/auth/signup"),
     re.compile(r"^/api/course/?$"),
-    re.compile(r"^/api/course/[a-zA-Z0-9-]+/?$"),
+    re.compile(r"^/api/course/get/[a-zA-Z0-9-]+/?$"),
     re.compile(r"^/api/course/keywords/[a-zA-Z0-9 ]+/?$"),
 ]
 
