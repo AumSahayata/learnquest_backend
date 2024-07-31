@@ -34,7 +34,7 @@ async def get_instructor_courses(request: Request, session: AsyncSession = Depen
         if courses:
             return courses
         else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Courses not found")
+            return []
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an instructor")
     
