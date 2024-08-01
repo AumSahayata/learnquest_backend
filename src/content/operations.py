@@ -54,7 +54,7 @@ class ContentOperations:
             
             content_to_delete = await self.get_content_by_content_uid(content_uid, session)
             
-            if content_to_delete is not None:
+            if content_to_delete:
                 
                 await session.delete(content_to_delete)
                 
